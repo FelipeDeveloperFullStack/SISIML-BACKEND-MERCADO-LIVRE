@@ -1,0 +1,38 @@
+{
+  "name": "node-react",
+  "version": "1.0.0",
+  "scripts": {
+    "client": "cd .. && cd client && npm start",
+    "server": "nodemon server.js",
+    "dev": "concurrently --kill-others-on-fail \"npm run server\" \"npm run client\"",
+    "start": "node server.js",
+    "test": "node ./src/test/test.js"
+  },
+  "dependencies": {
+    "axios": "^0.19.0",
+    "body-parser": "^1.19.0",
+    "cheerio": "^1.0.0-rc.3",
+    "connect-flash": "^0.1.1",
+    "cors": "^2.8.5",
+    "debug": "2.6.8",
+    "express": "^4.16.2",
+    "express-session": "^1.17.0",
+    "firebase": "^7.5.0",
+    "fs": "^0.0.1-security",
+    "http": "0.0.0",
+    "https-proxy-agent": "^4.0.0",
+    "localStorage": "^1.0.4",
+    "lodash": "^4.17.15",
+    "mercadolibre": "^0.0.13",
+    "moment": "^2.26.0",
+    "mongoose": "5.7.0",
+    "passport": "^0.4.0",
+    "passport-mercadolibre": "0.0.2",
+    "rastrojs": "^1.1.0",
+    "selenium-webdriver": "^4.0.0-alpha.7",
+    "socket.io": "^2.3.0"
+  },
+  "devDependencies": {
+    "concurrently": "^3.5.0"
+  }
+}
