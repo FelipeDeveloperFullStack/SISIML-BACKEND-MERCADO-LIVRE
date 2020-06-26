@@ -4,14 +4,14 @@ const usuarioService = require("../services/usuario-service")
 const axios = require('axios')
 const FilaPerguntas = require('../models/filaPerguntas-model')
 const util = require('../helpers/util')
-const {localhost} = require('../constants/constants')
+const { localhost } = require('../constants/constants')
 
 module.exports = (io) => {
 
     router.post('/', async (req, res) => {
         await usuarioService.buscarUsuarioPorID(req.body.user_id).then(async user => {
             /** PERGUNTAS */
-            if (req.body.topic === 'questions') { 
+            if (req.body.topic === 'questions') {
                 let resource = req.body.resource.split('').filter(caracter => { return Number(caracter) || caracter == 0 }).join('') //Obtem apenas o número de EX: /questions/5036111111, devolvendo apenas o 5036111111
                 await axios.get(`https://api.mercadolibre.com/questions/${resource}?access_token=${user.accessToken}`).then(async question => {
                     await axios.get(`https://api.mercadolibre.com/items/${question.data.item_id}`).then(async item => {
@@ -27,7 +27,7 @@ module.exports = (io) => {
                 })
             }
             /** VENDAS */
-            if(req.body.topic === 'orders_v2'){
+            if (req.body.topic === 'orders_v2') {
                 let resource = req.body.resource.split('').filter(caracter => { return Number(caracter) || caracter == 0 }).join('') //Obtem apenas o número de EX: /questions/5036111111, devolvendo apenas o 5036111111
                 await axios.get(`https://api.mercadolibre.com/orders/${resource}?access_token=${user.accessToken}`).then(async question => {
                     await axios.get(`https://api.mercadolibre.com/orders/search?seller=${user.id}&q=${question.data.id}&access_token=${user.accessToken}`).then(order => {
@@ -38,7 +38,7 @@ module.exports = (io) => {
                                 return processarNovaVendaComShipments(response, user)
                             }
                         })
-            
+
                         Promise.all(novaVenda).then(vendas => {
                             let newVendas = []
                             vendas.map(venda => {
@@ -47,18 +47,19 @@ module.exports = (io) => {
                                 }
                             })
                             console.log(req.body)
-                            console.log(vendas)
+                            //console.log(vendas)
                             res.status(200).send(newVendas)
                             io.emit("nova_venda", newVendas)
                         })
                     })
-                
+
                 })
             }
         }).catch(error => res.send(error))
     })
 
     const processarNovaVendaComShipments = async (response, user) => {
+        console.log(response)
         return await axios.get(`https://api.mercadolibre.com/shipments/${response.shipping.id}?access_token=${user.accessToken}`).then(async ship => {
             return await axios.get(`https://api.mercadolibre.com/messages/packs/${response.pack_id === null ? response.id : response.pack_id}/sellers/${user.id}?access_token=${user.accessToken}`).then(msg => {
                 let json = {
@@ -122,9 +123,10 @@ module.exports = (io) => {
             }).catch(error => console.log(error))
         }).catch(error => console.log(error))
     }
-    
+
     const processarNovaVendaSemShipmentsEntregaACombinar = async (response, user) => {
         return await axios.get(`https://api.mercadolibre.com/messages/packs/${response.pack_id === null ? response.id : response.pack_id}/sellers/${user.id}?access_token=${user.accessToken}`).then(msg => {
+            console.log(response)
             let json = {
                 id_usuario: JSON.stringify(user.id),
                 id_venda: response.id,
@@ -174,7 +176,7 @@ module.exports = (io) => {
 
     let obterDadosPagamento = (payments) => {
         return payments.map(response => {
-    
+
             let dados_pagamento = {
                 id_pagamento: response.id,
                 status_pagamento: response.status,
@@ -190,7 +192,7 @@ module.exports = (io) => {
                         (response.payment_type === 'account_money' ? 'Dinheiro em conta' : response.payment_type)),
             }
             return dados_pagamento
-    
+
         })
     }
 
@@ -217,8 +219,8 @@ module.exports = (io) => {
                     console.log("[MENSAGEM DO SISTEMA] - Nova pergunta salva no banco de dados!")
                     console.log("\n")
                 }).catch(error => console.log(error))
-            }else{
-                FilaPerguntas.findOneAndUpdate({ id: body.id }, {$set: {status: body.status}}).then(response => {
+            } else {
+                FilaPerguntas.findOneAndUpdate({ id: body.id }, { $set: { status: body.status } }).then(response => {
                     console.log("\n")
                     console.log(`[MENSAGEM DO SISTEMA] - Pergunta(${body.id}) atualizada no banco de dados como (${body.status})!`)
                     console.log("\n")
@@ -231,7 +233,7 @@ module.exports = (io) => {
     router.post('/responder/:userId', (req, res) => {
         usuarioService.buscarUsuarioPorID(req.params.userId).then(user => {
             axios.post(`https://api.mercadolibre.com/answers?access_token=${user.accessToken}`, req.body).then(response => {
-                FilaPerguntas.findOneAndUpdate({ id: req.body.question_id }, {$set: {status: "ANSWERED"}}).then(response => {
+                FilaPerguntas.findOneAndUpdate({ id: req.body.question_id }, { $set: { status: "ANSWERED" } }).then(response => {
                     console.log("\n")
                     console.log("[MENSAGEM DO SISTEMA] - Pergunta atualizada no banco de dados como respondido(ANSWERED)!")
                     console.log("\n")

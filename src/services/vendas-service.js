@@ -570,7 +570,7 @@ exports.obterTotalVendasPendentes = async (req, res) => {
 
 exports.obterVendasConcluidas = async (req, res) => {
     usuarioService.buscarUsuarioPorID(req.params.userId).then(async user => {
-        await axios.get(`https://api.mercadolibre.com/orders/search?seller=${user.id}&access_token=${user.accessToken}`).then(resp => {
+        await axios.get(`https://api.mercadolibre.com/orders/search?seller=${user.id}&sort=date_asc&access_token=${user.accessToken}`).then(resp => {
             let vendasConcluidas = resp.data.results.map(async response => {
                 if (response.shipping.id === undefined) {
                     return processarVendasConcluidasSemShipmentsEntregaACombinar(response, user)

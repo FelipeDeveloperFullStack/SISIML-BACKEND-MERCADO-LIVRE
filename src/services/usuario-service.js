@@ -63,11 +63,27 @@ const buscarUsuarioPorNumberDocumento = async (profile, accessToken, refreshToke
                 email: user.email,
                 password: user.password,
                 cpf: user.cpf
-              }
+            }
         })
-        await Usuario.findOneAndUpdate({cpf: String(profile._json.identification.number).trim()}, {$set: userData[0]})
+        await Usuario.findOneAndUpdate({ cpf: String(profile._json.identification.number).trim() }, { $set: userData[0] })
     }).catch(error => console.error(error))
 
+}
+
+const atualizarCodigoSeguranca = async (email, codeSecurity) => {
+    await Usuario.findOneAndUpdate({ email: email.trim() }, {
+        $set: {
+            code_security: codeSecurity
+        }
+    }).then(response => {
+        console.log("[MENSAGEM DO SISTEMA] - Codigo de segurança atualizado no banco de dados!")
+    }).catch(error => console.error(error))
+}
+
+const procurarCodigoSeguranca = async (req, res) => {
+    await Usuario.find({ code_security: req.body.code }).then(response => {
+        res.send(response)
+    }).catch(error => console.error(error))
 }
 
 
@@ -88,10 +104,10 @@ const listarTodosUsuarios = async (req, res) => {
 }
 
 const buscarUsuarioPorID = async (id) => {
-    const usuarios = await axios.post(`${constants.producao.PRODUCAO}/usuario/post/usuario_by_id`, {id}).then(response => {
+    const usuarios = await axios.post(`${constants.producao.PRODUCAO}/usuario/post/usuario_by_id`, { id }).then(response => {
         //console.log(response.data[0])
         return response.data[0]
-    }).catch(err => {console.log("Houve um erro ao listar todos os usuarios: " + err);})
+    }).catch(err => { console.log("Houve um erro ao listar todos os usuarios: " + err); })
     return usuarios
 }
 
@@ -103,7 +119,7 @@ const getUserById = async (req, res) => {
     })
 }
 
-const getUsuarioByID = async (req, res) => {    
+const getUsuarioByID = async (req, res) => {
     await Usuario.find({
         id: req.body.id
     }).then(response => {
@@ -118,13 +134,24 @@ const getAllUsers = async (req, res) => {
 }
 
 const atualizarTipoImpressao = async (req, res) => {
-    await Usuario.findOneAndUpdate({id: req.body.id}, {$set: {tipo_impressao: req.body.tipo_impressao}}).then(response => {
+    await Usuario.findOneAndUpdate({ id: req.body.id }, { $set: { tipo_impressao: req.body.tipo_impressao } }).then(response => {
         res.status(200).send("Tipo de impressao atualizado!")
+    }).catch(error => res.send(error))
+}
+
+const atualizarSenhaUsuario = async (req, res) => {
+    await Usuario.findOneAndUpdate({ id: req.body.id }, {
+        $set: {
+            password: req.body.password
+        }
+    }).then(response => {
+        res.status(200).send("OK")
     }).catch(error => res.send(error))
 }
 
 module.exports = {
     salvarUsuario,
+    atualizarSenhaUsuario,
     atualizarTipoImpressao,
     buscarUsuarioPorID,
     salvarUsuarioRoute,
@@ -134,5 +161,7 @@ module.exports = {
     getProcurarUsuarioPorEmail,
     buscarUsuarioPorNumberDocumento,
     getUsuarioByID,
-    getAllUsers
+    getAllUsers,
+    atualizarCodigoSeguranca,
+    procurarCodigoSeguranca
 }

@@ -26,6 +26,7 @@
     "mercadolibre": "^0.0.13",
     "moment": "^2.26.0",
     "mongoose": "5.7.0",
+    "nodemailer": "^6.4.10",
     "passport": "^0.4.0",
     "passport-mercadolibre": "0.0.2",
     "rastrojs": "^1.1.0",

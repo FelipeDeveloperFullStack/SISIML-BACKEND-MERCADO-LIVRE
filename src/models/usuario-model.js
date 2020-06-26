@@ -71,6 +71,10 @@ const usuarioModel = mongoose.Schema({
     nickname: {
         type: String,
         trim: true
+    },
+    code_security: {
+        type: String,
+        default: "0000"
     }
 });
 
