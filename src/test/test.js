@@ -5,7 +5,6 @@ const constants = require('../constants/constants');
 const usuarioService = require('../services/usuario-service')
 const anuncioService = require('../services/anuncio-service')
 const util = require('../helpers/util')
-const postAnuncio = require('./postAnuncio')
 const cheerio = require('cheerio');
 const Usuario = require('../models/usuario-model')
 require('moment/locale/pt-br')
@@ -882,4 +881,4 @@ const testeMomentJS = (date) => {
     }
 }
 
-testeMomentJS('2020-06-06T02:26:43.264Z')
+getDataSite()
