@@ -21,6 +21,7 @@ module.exports = (io) => {
                             salvarNotificacaoFilaBD(question.data)
                             io.emit('notification-ml', question.data)
                             res.status(200).send(question.data)
+                            
                             console.log(req.body)
                         })
                     })
