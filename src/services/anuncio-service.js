@@ -75,7 +75,12 @@ exports.listarTodosAnuncio = async (req, res) => {
                                             question: resp09.data.questions
                                         }
                                         return anuncio;
-                                    }).catch(err => res.send(err))
+                                    }).catch(err => {
+                                        res.send(err)
+                                        console.log("\n")
+                                        console.log("ACONTECEU O ERRO DO ANUNCIO AQUI.....CATCH 01")
+                                        console.log("\n")
+                                    })
                                 } else if (resp03.data.shipping.mode === "not_specified") {
                                     var anuncio = {
                                         id: resp03.data.id,
@@ -130,9 +135,25 @@ exports.listarTodosAnuncio = async (req, res) => {
                                     return anuncio;
                                 }
                             })
-                        }).catch(err => res.send(err))
-                    }).catch(err => { res.send(err) })
-                }).catch(err => { res.send(err) });
+                        }).catch(err => {
+                            res.send(err)
+                            console.log("\n")
+                            console.log("ACONTECEU O ERRO DO ANUNCIO AQUI.....CATCH 02")
+                            console.log("\n")
+                            listarTodosAnuncio(req, res)
+                        })
+                    }).catch(err => {
+                        res.send(err)
+                        console.log("\n")
+                        console.log("ACONTECEU O ERRO DO ANUNCIO AQUI.....CATCH 03")
+                        console.log("\n")
+                    })
+                }).catch(err => {
+                    res.send(err)
+                    console.log("\n")
+                    console.log("ACONTECEU O ERRO DO ANUNCIO AQUI.....CATCH 04")
+                    console.log("\n")
+                })
             })
 
             //Ordenar 
@@ -143,7 +164,9 @@ exports.listarTodosAnuncio = async (req, res) => {
 
 
         }).catch(err => {
-            res.send(err)
+            console.log("\n")
+            console.log("ACONTECEU O ERRO DO ANUNCIO AQUI.....CATCH 05")
+            console.log("\n")
         });
     })
 }
@@ -581,7 +604,7 @@ const getVariations = (variations) => {
 
 const modificarDescricaoEmMassa = async (req, res) => {
     await usuarioService.buscarUsuarioPorID(req.params.userId).then(user => {
-        
+
     }).catch(error => console.log(error))
 }
 

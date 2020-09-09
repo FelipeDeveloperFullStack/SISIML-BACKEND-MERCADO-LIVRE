@@ -27,6 +27,10 @@ const sendEmail = (req, res) => {
                 rejectUnauthorized: false
             }
         });
+        /**
+         * Se caso apresentar problemas de bloqueio do Google, acesse o link abaixo e verifique se está habilitado
+         * https://myaccount.google.com/lesssecureapps?pli=1
+         */
         let mailOptions = {
             from: "felipeanalista3@gmail.com", 
             to: req.body.emailToSend,

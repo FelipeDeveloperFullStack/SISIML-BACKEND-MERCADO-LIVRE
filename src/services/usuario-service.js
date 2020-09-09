@@ -44,7 +44,17 @@ const getProcurarUsuarioPorEmail = async (req, res) => {
     }).catch(error => res.send(error))
 }
 
+const getProcurarUsuarioPorDocumento = async (req, res) => {
+    Usuario.find({
+        cpf: req.params.cpf
+    }).then(response => {
+        res.send(response).status(200)
+    }).catch(error => res.send(error))
+}
+
+
 const buscarUsuarioPorNumberDocumento = async (profile, accessToken, refreshToken) => {
+    console.log(profile._json.identification.number)
     await Usuario.find({
         cpf: String(profile._json.identification.number).trim()
     }).then(async response => {
@@ -66,7 +76,7 @@ const buscarUsuarioPorNumberDocumento = async (profile, accessToken, refreshToke
             }
         })
         await Usuario.findOneAndUpdate({ cpf: String(profile._json.identification.number).trim() }, { $set: userData[0] })
-    }).catch(error => console.error(error))
+    }).catch(error => console.error("error: "+error))
 
 }
 
@@ -163,5 +173,6 @@ module.exports = {
     getUsuarioByID,
     getAllUsers,
     atualizarCodigoSeguranca,
-    procurarCodigoSeguranca
+    procurarCodigoSeguranca,
+    getProcurarUsuarioPorDocumento
 }

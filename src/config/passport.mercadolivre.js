@@ -16,8 +16,8 @@ module.exports = (passport) => {
 
     usuarioService.buscarUsuarioPorNumberDocumento(user, accessToken, refreshToken)
 
-
-    usuarioService.salvarUsuario(setUsuario(user, accessToken, refreshToken)) //SALVANDO NO FIREBASE
+    console.log(setUsuario(user, accessToken, refreshToken))
+    //usuarioService.salvarUsuario(setUsuario(user, accessToken, refreshToken))
 
     return done(null, user);
 

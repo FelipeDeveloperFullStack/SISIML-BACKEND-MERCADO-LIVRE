@@ -18,7 +18,8 @@ router.get('/auth/mercadolibre/callback', passport.authorize('mercadolibre', {
     failureRedirect: '/' 
 }), (req, res) => {
         // Redireciona para a página principal do sistema
-       res.redirect("http://localhost:3000/admin/dashboard");
+       //res.redirect("http://localhost:3000/admin/dashboard");
+       res.redirect("http://localhost:3000/dashboard/analytics");
     });
 
 router.get('/', ensureAuthenticated, async (req, res) => {

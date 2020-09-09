@@ -8,7 +8,6 @@ const usuarioModel = mongoose.Schema({
     },
     sobrenome: {
         type: String,
-        required: true,
         trim: true
     },
     email: {
@@ -23,7 +22,6 @@ const usuarioModel = mongoose.Schema({
     },
     tipo_impressao:{
         type: String,
-        required: true,
         trim: true,
         default: 'pdf'
     },
@@ -34,7 +32,6 @@ const usuarioModel = mongoose.Schema({
     },
     active: {
         type: Boolean,
-        required: true,
         default: true
     },
     plano: {
