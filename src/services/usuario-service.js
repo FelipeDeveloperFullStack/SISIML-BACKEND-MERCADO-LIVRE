@@ -54,7 +54,6 @@ const getProcurarUsuarioPorDocumento = async (req, res) => {
 
 
 const buscarUsuarioPorNumberDocumento = async (profile, accessToken, refreshToken) => {
-    console.log(profile._json.identification.number)
     await Usuario.find({
         cpf: String(profile._json.identification.number).trim()
     }).then(async response => {

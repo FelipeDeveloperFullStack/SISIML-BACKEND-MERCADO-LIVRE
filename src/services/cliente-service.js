@@ -1,7 +1,36 @@
 const axios = require('axios')
 const usuarioService = require('../services/usuario-service')
 const constants = require('../constants/constants')
+const ClientModel = require('../models/cliente-model')
 
+exports.salvarDadosClientesBD = async (req, res) => {
+    try {
+        ClientModel.find({ id_usuario: req.body.id_usuario }).then(response => {
+            //SE CASO NÃO TIVER NENHUM REGISTRO, SALVA UM NOVO.
+            if (response.length === 0) {
+                let clientModel = ClientModel(req.body)
+                clientModel.save().then(response => {
+                    res.status(200).send(response)
+                }).catch(err => res.status(401).send(err))
+                //CASO JÁ TIVER, ATUALIZA. 
+            } else if (response.length > 0) {
+                ClientModel.findOneAndUpdate({ id_usuario: req.body.id_usuario }, {
+                    $set: req.body 
+                }).then(response => {
+                    res.status(200).send(response)
+                }).catch(error => res.send(error))
+            }   
+        })
+    } catch (error) {
+        res.send(error)
+    }
+}
+
+exports.buscarPeloId = async (req, res) => {
+    ClientModel.find({ id_usuario: req.body.id_usuario }).then(response => {
+        res.status(200).send(response)
+    }).catch(error => res.send(error))
+}
 
 exports.obterDadosCliente = async (req, res) => {
     usuarioService.buscarUsuarioPorID(req.params.userId).then(resp => {
@@ -27,6 +56,7 @@ exports.obterDadosCliente = async (req, res) => {
                 return await axios.get('https://api.mercadolibre.com/users/' + value.buyer.id).then(resp => {
                     var dadosClient = {
                         id: value.buyer.id,
+                        id_usuario: req.params.userId,
                         nickname: value.buyer.nickname,
                         primeiro_nome: value.buyer.first_name,
                         last_name: value.buyer.last_name,
