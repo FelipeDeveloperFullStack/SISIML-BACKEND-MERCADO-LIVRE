@@ -13,6 +13,9 @@ const blacklistCompras = mongoose.Schema({
     bloquearCompras: {
         type: Boolean,
         requered: true,
+    },
+    user_id:{
+        type: Number
     }
 })
 

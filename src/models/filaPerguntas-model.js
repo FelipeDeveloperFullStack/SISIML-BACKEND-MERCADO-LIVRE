@@ -13,6 +13,10 @@ const filaPerguntas = mongoose.Schema({
         type: String,
         trim: true
     },
+    tipo_notificacao: {
+        type: String,
+        default: 'Pergunta referente ao anúncio'
+    },
     text: {
         type: String,
         trim: true

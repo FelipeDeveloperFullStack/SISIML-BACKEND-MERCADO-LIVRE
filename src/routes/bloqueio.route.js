@@ -9,17 +9,17 @@ router.delete('/perguntas/:user_id_perguntas/:userId', bloqueioService.removerUs
 router.delete('/mongo/perguntas/:_id_perguntas', bloqueioService.removerUsuarioBlackListPerguntasBD)
 router.get('/nickname/:nickname', bloqueioService.buscarUsuarioPorNickName)
 router.post('/salvarUsuarioBlackListPerguntas', bloqueioService.salvarUsuarioBlackListPerguntas)
-router.get("/listarUsuarioBlackListPerguntas", bloqueioService.listarUsuarioBlackListPerguntas)
+router.get("/listarUsuarioBlackListPerguntas/listagem/pergunta/:userId", bloqueioService.listarUsuarioBlackListPerguntas)
 router.get("/buscarUsuarioBlackListPerguntasPorNickNameMongoDB/:nickname", bloqueioService.buscarUsuarioBlackListPerguntasPorNickName)
 
 
 //COMPRAS
 router.post('/salvar_user_black_compras', bloqueioService.salvarUsuarioListaNegraCompras)
-router.get('/listar_user_black_compras', bloqueioService.listarTodosUsuariosListaNegraCompras)
+router.get('/listar_user_black_compras/', bloqueioService.listarTodosUsuariosListaNegraCompras)
 router.delete('/compras/:user_id_compras/:userId', bloqueioService.removerUsuarioListaNegraCompras)
 router.delete('/mongo/compras/:_id_compras', bloqueioService.removerUsuarioBlackListComprasBD)
 router.post('/salvarUsuarioBlackListCompras', bloqueioService.salvarUsuarioBlackListCompras)
-router.get("/listarUsuarioBlackListCompras", bloqueioService.listarUsuarioBlackListCompras)
+router.get("/listarUsuarioBlackListCompras/listagem/:userId", bloqueioService.listarUsuarioBlackListCompras)
 router.get("/buscarUsuarioBlackListComprasPorNickNameMongoDB/:nickname", bloqueioService.buscarUsuarioBlackListComprasPorNickName)
 
 module.exports = router
