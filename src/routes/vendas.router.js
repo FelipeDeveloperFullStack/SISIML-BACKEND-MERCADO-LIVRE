@@ -17,6 +17,7 @@ router.post('/gerarEtiquetaEnvioMesmoPLP/get01/get02/get03/get04/get05/get06/get
 router.post('/getTotalMessagensNaoLidas/post01/post02/post03/post04/post05/post06/post07/post08/post09/post10/post11/post12/post13/', vendasService.obterQuantidadeDeMensagensNaoRespondidas)
 router.put('/markAsReadMessage/put01/put02/put03/put04/put05/put06/put07/put08/put09/put10/put11/put12/put13/put14', vendasService.markAsReadMessage)
 router.post('/sendMessage/post01/post02/post03/post04/post05/post06/post07/post08/post09/post10/post11/post12/post13/post14/post15/', vendasService.sendMessage)
+router.post('/dadosGraficoAnual/post01/post02/post03/post04/post05/post06/post07/post08/post09/post10/post11/post12/post13/post14/post15/get16/get17', vendasService.dadosGraficoAnual)
 
 
 module.exports = router

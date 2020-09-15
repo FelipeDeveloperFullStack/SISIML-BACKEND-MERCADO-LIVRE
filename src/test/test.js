@@ -881,4 +881,23 @@ const testeMomentJS = (date) => {
     }
 }
 
-getDataSite()
+const dadosGraficoAnual = async () => {
+    await usuarioService.buscarUsuarioPorID(362614126).then(async user => {
+        await axios.get(`https://api.mercadolibre.com/orders/search?seller=${362614126}&sort=date_asc&order.date_created.from=2019-01-01T00:00:00.000-00:00&order.date_created.to=2020-09-15T00:00:00.000-00:00&access_token=${user.accessToken}`).then(order => {
+            order.data.results.map(result => {
+                let data = result.payments.map(pay => {
+                    if(pay.status === 'approved'){
+                        let json = {
+                            mes: util.getDateMonthString(util.getDateMonthInteger(pay.date_approved)),
+                            preco: pay.total_paid_amount
+                        }
+                        return json
+                    }
+                })
+                console.log(data)
+            })
+        }).catch(err => console.log(err))
+    }).catch(err => console.log(err))
+}
+
+dadosGraficoAnual()

@@ -13,6 +13,9 @@ const blacklistPerguntas = mongoose.Schema({
     bloquearPerguntas: {
         type: Boolean,
         requered: true,
+    },
+    user_id:{
+        type: Number
     }
 })
 

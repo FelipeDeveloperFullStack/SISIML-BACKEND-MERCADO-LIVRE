@@ -794,7 +794,97 @@ exports.sendMessage = async (req, res) => {
     }).catch(err => res.send(err))
 }
 
-
+exports.dadosGraficoAnual = async (req, res) => {
+    await usuarioService.buscarUsuarioPorID(req.body.userId).then(async user => {
+        await axios.get(`https://api.mercadolibre.com/orders/search?seller=${req.body.userId}&sort=date_asc&order.date_created.from=2019-01-01T00:00:00.000-00:00&order.date_created.to=2020-09-15T00:00:00.000-00:00&access_token=${user.accessToken}`).then(order => {
+            
+            let dadosOrders = order.data.results.map(result => {
+                return result.payments.map(pay => {
+                    if(pay.status === 'approved'){
+                        return {
+                            mes: util.getDateMonthString(util.getDateMonthInteger(pay.date_approved)),
+                            preco: pay.total_paid_amount
+                        }
+                    }
+                })
+            })
+            let temp = []
+            dadosOrders.map(orders => {
+                orders.map(value => temp.push(value))
+            })
+            let dadosGraficoObj = []
+            temp.map(ordersValue => {
+                if(ordersValue !== undefined){
+                    dadosGraficoObj.push(ordersValue)
+                }
+            })
+            let mes01 = 0
+            let mes02 = 0
+            let mes03 = 0
+            let mes04 = 0
+            let mes05 = 0
+            let mes06 = 0
+            let mes07 = 0
+            let mes08 = 0
+            let mes09 = 0
+            let mes10 = 0
+            let mes11 = 0
+            let mes12 = 0
+            dadosGraficoObj.map(value => {
+                if(value.mes === 'Janeiro'){
+                    mes01 += value.preco
+                }
+                if(value.mes === 'Fevereiro'){
+                    mes02 += value.preco
+                }
+                if(value.mes === 'Março'){
+                    mes03 += value.preco
+                }
+                if(value.mes === 'Abril'){
+                    mes04 += value.preco
+                }
+                if(value.mes === 'Maio'){
+                    mes05 += value.preco
+                }
+                if(value.mes === 'Junho'){
+                    mes06 += value.preco
+                }
+                if(value.mes === 'Julho'){
+                    mes07 += value.preco
+                }
+                if(value.mes === 'Agosto'){
+                    mes08 += value.preco
+                }
+                if(value.mes === 'Setembro'){
+                    mes09 += value.preco
+                }
+                if(value.mes === 'Outubro'){
+                    mes10 += value.preco
+                }
+                if(value.mes === 'Novembro'){
+                    mes11 += value.preco
+                }
+                if(value.mes === 'Dezembro'){
+                    mes12 += value.preco
+                }
+            })
+            let dadosTratados = []
+            dadosTratados.push({mes: 'Janeiro', total: mes01.toFixed(2)})
+            dadosTratados.push({mes: 'Fevereiro', total: mes02.toFixed(2)})
+            dadosTratados.push({mes: 'Março', total: mes03.toFixed(2)})
+            dadosTratados.push({mes: 'Abril', total: mes04.toFixed(2)})
+            dadosTratados.push({mes: 'Maio', total: mes05.toFixed(2)})
+            dadosTratados.push({mes: 'Junho', total: mes06.toFixed(2)})
+            dadosTratados.push({mes: 'Julho', total: mes07.toFixed(2)})
+            dadosTratados.push({mes: 'Agosto', total: mes08.toFixed(2)})
+            dadosTratados.push({mes: 'Setembro', total: mes09.toFixed(2)})
+            dadosTratados.push({mes: 'Outubro', total: mes10.toFixed(2)})
+            dadosTratados.push({mes: 'Novembro', total: mes11.toFixed(2)})
+            dadosTratados.push({mes: 'Dezembro', total: mes12.toFixed(2)})
+            res.status(200).json(dadosTratados)
+        }).catch(err => res.send(err))
+    }).catch(err => res.send(err))
+}
 
 
 

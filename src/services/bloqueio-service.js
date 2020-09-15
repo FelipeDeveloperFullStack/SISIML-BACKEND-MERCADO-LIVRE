@@ -43,7 +43,7 @@ exports.salvarUsuarioBlackListPerguntas = (req, res) => {
 }
 
 exports.listarUsuarioBlackListPerguntas = (req, res) => {
-    BlackListPerguntas.find({user_id: req.params.userId}).then(response => {
+    BlackListPerguntas.find({usuario_sistema: req.body.usuario_sistema}).then(response => {
         res.send(response).status(200)
     }).catch(error => {res.send(error)})
 }
@@ -105,7 +105,7 @@ exports.salvarUsuarioBlackListCompras = (req, res) => {
 }
 
 exports.listarUsuarioBlackListCompras = (req, res) => {
-    BlackListCompras.find({user_id: req.params.userId}).then(response => {
+    BlackListCompras.find({usuario_sistema: req.body.usuario_sistema}).then(response => {
         res.send(response).status(200)
     }).catch(error => {res.send(error)})
 }
