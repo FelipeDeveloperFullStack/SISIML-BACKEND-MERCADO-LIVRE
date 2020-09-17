@@ -796,7 +796,7 @@ exports.sendMessage = async (req, res) => {
 
 exports.dadosGraficoAnual = async (req, res) => {
     await usuarioService.buscarUsuarioPorID(req.body.userId).then(async user => {
-        await axios.get(`https://api.mercadolibre.com/orders/search?seller=${req.body.userId}&sort=date_asc&order.date_created.from=2019-01-01T00:00:00.000-00:00&order.date_created.to=2020-09-15T00:00:00.000-00:00&access_token=${user.accessToken}`).then(order => {
+        await axios.get(`https://api.mercadolibre.com/orders/search?seller=${req.body.userId}&sort=date_asc&order.date_created.from=${req.body.year}-01-01T00:00:00.000-00:00&order.date_created.to=${req.body.year}-12-31T00:00:00.000-00:00&access_token=${user.accessToken}`).then(order => {
             
             let dadosOrders = order.data.results.map(result => {
                 return result.payments.map(pay => {
@@ -881,7 +881,9 @@ exports.dadosGraficoAnual = async (req, res) => {
             dadosTratados.push({mes: 'Outubro', total: mes10.toFixed(2)})
             dadosTratados.push({mes: 'Novembro', total: mes11.toFixed(2)})
             dadosTratados.push({mes: 'Dezembro', total: mes12.toFixed(2)})
+
             res.status(200).json(dadosTratados)
+
         }).catch(err => res.send(err))
     }).catch(err => res.send(err))
 }
