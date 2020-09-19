@@ -533,8 +533,8 @@ let obterImagemSite = async (url) => {
 }
 
 
-let getDataSite = async () => {
-    await axios.get('https://www.mercadolivre.com.br/perfil/comproline').then(async response => {
+let getConcorrente = async (nickName) => {
+    await axios.get(`https://www.mercadolivre.com.br/perfil/${nickName}`).then(async response => {
         let $ = cheerio.load(response.data)
         let totalVendas = $('#profile > div > div.main-wrapper > div.content-wrapper > div.seller-info > div:nth-child(1) > p > span > span').text()
         let reputacao = $('#profile > div > div.main-wrapper > div.content-wrapper > div.seller-info > div:nth-child(1) > p > span').text()
@@ -548,35 +548,42 @@ let getDataSite = async () => {
         let totalFeedback = $("#profile > div > div.main-wrapper > div.inner-wrapper > section > div.buyers-feedback__wrapper > span").text()
         let feedback = $('#feedback_good').text()
 
-        await axios.get('https://api.mercadolibre.com/sites/MLB/search?nickname=comproline').then(async response => {
-
-            let totalVenda = response.data.results.map(result => {
-                return result.price * result.sold_quantity
-            })
-            let quantidadeVendas = response.data.results.map(result => {
-                return result.sold_quantity
-            })
-
-            /*
-            let quantidadeTotalVendas = quantidadeVendas.reduce((soma, valorCorrente) => {
-                return soma + valorCorrente
-            })
-            */
-            let soma = totalVenda.reduce((soma, valorCorrente) => {
-                return soma + valorCorrente
-            })
-            let visitas = response.data.results.map(async result => {
-                return await axios.get(`https://api.mercadolibre.com/visits/items?ids=${result.id}`).then(resp => {
-                    return Object.values(resp.data).reduce((acumulador, valorCorrente) => { return valorCorrente })
-                }).catch(error => console.error(error))
-            })
-
-            let faturamento = soma.toLocaleString("pt-BR", { minimumFractionDigits: 2, style: 'currency', currency: 'BRL' })
+        await axios.get(`https://api.mercadolibre.com/sites/MLB/search?nickname=${nickName}`).then(async response => {
+            if (response.data.results.length !== 0) {
 
 
-            Promise.all(visitas).then(async resp => {
+                let totalVenda = response.data.results.map(result => {
+                    return result.price * result.sold_quantity
+                })
+                let quantidadeVendas = response.data.results.map(result => {
+                    return result.sold_quantity
+                })
 
-                let totalVisitas = resp.reduce((acumulador, valorCorrente) => { return acumulador + valorCorrente })
+                /*
+                let quantidadeTotalVendas = quantidadeVendas.reduce((soma, valorCorrente) => {
+                    return soma + valorCorrente
+                })
+                */
+                let soma = totalVenda.reduce((soma, valorCorrente) => {
+                    return soma + valorCorrente
+                })
+
+                try {
+                    let visitas = response.data.results.map(async result => {
+                        return await axios.get(`https://api.mercadolibre.com/visits/items?ids=${result.id}`).then(resp => {
+                            return Object.values(resp.data).reduce((acumulador, valorCorrente) => { return valorCorrente })
+                        }).catch(error => console.error("Houve um erro na API de visitas!"))
+                    })
+
+                    Promise.all(visitas).then(async resp => {
+                        let totalVisitas = resp.reduce((acumulador, valorCorrente) => { return acumulador + valorCorrente })
+                        console.log('Total de visitas: ' + totalVisitas)
+                    }).catch(error => console.error("Houve um erro no reduce de visitas!"))
+                } catch (error) {
+                    console.log("Caiu no Catch de visitas")
+                }
+
+                let faturamento = soma.toLocaleString("pt-BR", { minimumFractionDigits: 2, style: 'currency', currency: 'BRL' })
 
                 await axios.get(`https://api.mercadolibre.com/users/${response.data.seller.id}`).then(resp => {
                     console.log('Transações:')
@@ -602,15 +609,19 @@ let getDataSite = async () => {
                     console.log('Total de Feedback: ' + totalFeedback)
                     console.log('-------------------------------------------------')
 
-                    console.log('Total de visitas: ' + totalVisitas)
+
                     console.log('Ticket médio: ' + (soma / totalVendas).toLocaleString("pt-BR", { minimumFractionDigits: 2, style: 'currency', currency: 'BRL' }))
                     console.log('Total de vendas: ' + totalVendas)
                     console.log("Total de faturamento: " + faturamento)
 
-                }).catch(error => console.error(error))
-            }).catch(error => console.error(error))
-        }).catch(error => console.error(error))
-    }).catch(error => console.error(error))
+                }).catch(error => console.error("Houve um erro ao tentar buscar por id do usuário"))
+
+
+            } else {
+                console.log("O usuário em questão não possui nenhum anúncio ativo para análise das métricas.")
+            }
+        }).catch(error => console.error("Houve um erro ao tentar buscar por nickname"))
+    }).catch(error => console.error("Houve um erro ao tentar buscar por nickname"))
 }
 
 
@@ -702,43 +713,43 @@ const processarVendasConcluidasComShipments = async (response, user) => {
 }
 
 const processarVendasConcluidasSemShipmentsEntregaACombinar = async (response, user) => {
-        return await axios.get(`https://api.mercadolibre.com/messages/packs/${response.pack_id === null ? response.id : response.pack_id}/sellers/${user.id}?access_token=${user.accessToken}`).then(msg => {
-            let json = {
-                id_usuario: JSON.stringify(user.id),
-                id_venda: response.id,
-                status: response.status,
-                data_venda: util.formatarDataHora(response.date_closed),
-                pack_id: response.pack_id,
-                itens_pedido: {
-                    quantidade_vendido: response.order_items[0].quantity,
-                    id_variacao: response.order_items[0].item.variation_id,
-                    sku: response.order_items[0].item.seller_sku,
-                    id_anuncio: response.order_items[0].item.id,
-                    condicao: response.order_items[0].item.condition,
-                    garantia: response.order_items[0].item.warranty,
-                    id_categoria: response.order_items[0].item.category_id,
-                    titulo_anuncio: response.order_items[0].item.title,
-                    taxa_venda: response.order_items[0].sale_fee,
-                    variation_attributes: response.order_items[0].item.variation_attributes,
-                },
-                valor_venda: response.total_amount,
-                comprador: {
-                    nickname_comprador: response.buyer.nickname,
-                    email_comprador: response.buyer.email,
-                    first_name_comprador: response.buyer.first_name,
-                    last_name_comprador: response.buyer.last_name,
-                    tipo_documento_comprador: response.buyer.billing_info.doc_type,
-                    documento_comprador: response.buyer.billing_info.doc_number === undefined ||
-                        response.buyer.billing_info.doc_number === null ? 'Não informado' : response.buyer.billing_info.doc_number
-                },
-                dados_pagamento: obterDadosPagamento(response.payments),
-                status_entrega:  "Entrega a combinar com o vendedor",
-                msg: msg.data.messages,
-                qtde: obterQuantidadeChar(msg.data.messages)
+    return await axios.get(`https://api.mercadolibre.com/messages/packs/${response.pack_id === null ? response.id : response.pack_id}/sellers/${user.id}?access_token=${user.accessToken}`).then(msg => {
+        let json = {
+            id_usuario: JSON.stringify(user.id),
+            id_venda: response.id,
+            status: response.status,
+            data_venda: util.formatarDataHora(response.date_closed),
+            pack_id: response.pack_id,
+            itens_pedido: {
+                quantidade_vendido: response.order_items[0].quantity,
+                id_variacao: response.order_items[0].item.variation_id,
+                sku: response.order_items[0].item.seller_sku,
+                id_anuncio: response.order_items[0].item.id,
+                condicao: response.order_items[0].item.condition,
+                garantia: response.order_items[0].item.warranty,
+                id_categoria: response.order_items[0].item.category_id,
+                titulo_anuncio: response.order_items[0].item.title,
+                taxa_venda: response.order_items[0].sale_fee,
+                variation_attributes: response.order_items[0].item.variation_attributes,
+            },
+            valor_venda: response.total_amount,
+            comprador: {
+                nickname_comprador: response.buyer.nickname,
+                email_comprador: response.buyer.email,
+                first_name_comprador: response.buyer.first_name,
+                last_name_comprador: response.buyer.last_name,
+                tipo_documento_comprador: response.buyer.billing_info.doc_type,
+                documento_comprador: response.buyer.billing_info.doc_number === undefined ||
+                    response.buyer.billing_info.doc_number === null ? 'Não informado' : response.buyer.billing_info.doc_number
+            },
+            dados_pagamento: obterDadosPagamento(response.payments),
+            status_entrega: "Entrega a combinar com o vendedor",
+            msg: msg.data.messages,
+            qtde: obterQuantidadeChar(msg.data.messages)
 
-            }
-            return json
-        }).catch(error => console.log(error))
+        }
+        return json
+    }).catch(error => console.log(error))
 }
 
 let obterQuantidadeChar = (messages) => {
@@ -876,7 +887,7 @@ const getProcurarUsuarioPorEmail = async () => {
 }
 
 const testeMomentJS = (date) => {
-    if(moment(util.formatarDataInverter(date)).isBefore(util.formatarDataInverter(moment().format()))) {
+    if (moment(util.formatarDataInverter(date)).isBefore(util.formatarDataInverter(moment().format()))) {
         console.log("Atrasado")
     }
 }
@@ -886,7 +897,7 @@ const dadosGraficoAnual = async () => {
         await axios.get(`https://api.mercadolibre.com/orders/search?seller=${362614126}&sort=date_asc&order.date_created.from=2019-01-01T00:00:00.000-00:00&order.date_created.to=2020-09-15T00:00:00.000-00:00&access_token=${user.accessToken}`).then(order => {
             order.data.results.map(result => {
                 let data = result.payments.map(pay => {
-                    if(pay.status === 'approved'){
+                    if (pay.status === 'approved') {
                         let json = {
                             mes: util.getDateMonthString(util.getDateMonthInteger(pay.date_approved)),
                             preco: pay.total_paid_amount
@@ -900,4 +911,10 @@ const dadosGraficoAnual = async () => {
     }).catch(err => console.log(err))
 }
 
-dadosGraficoAnual()
+const test = () => {
+    for (let index = 0; index < 30; index++) {
+        getConcorrente('MEJORCALIDADBR')
+    }
+}
+
+getConcorrente('MEJORCALIDADBR')
