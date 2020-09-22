@@ -546,7 +546,12 @@ let getConcorrente = async (nickName) => {
         let possuiAtraso = $('#profile > div > div.main-wrapper > div.inner-wrapper > div.metric__wrapper > div.metric.metric--last > div.metric__description > p').text()
 
         let totalFeedback = $("#profile > div > div.main-wrapper > div.inner-wrapper > section > div.buyers-feedback__wrapper > span").text()
-        let feedback = $('#feedback_good').text()
+        let feedbackBom = $('#feedback_good').eq(0).text()
+        let feedbackRegular = $('#feedback_good').eq(1).text()
+        let feedbackRuim = $('#feedback_good').eq(2).text()
+        let mercadoLider = $('#profile > div > div.main-wrapper > div.content-wrapper > div.seller-info > div.message > div > p').text()
+        let mensagemMercadoLider = $('#profile > div > div.main-wrapper > div.content-wrapper > div.seller-info > div.message > div > span').text()
+        let localizacao = $('#profile > div > div.main-wrapper > div.content-wrapper > div.location__wrapper > p').text()    
 
         await axios.get(`https://api.mercadolibre.com/sites/MLB/search?nickname=${nickName}`).then(async response => {
             if (response.data.results.length !== 0) {
@@ -568,7 +573,7 @@ let getConcorrente = async (nickName) => {
                     return soma + valorCorrente
                 })
 
-                try {
+                /*try {
                     let visitas = response.data.results.map(async result => {
                         return await axios.get(`https://api.mercadolibre.com/visits/items?ids=${result.id}`).then(resp => {
                             return Object.values(resp.data).reduce((acumulador, valorCorrente) => { return valorCorrente })
@@ -581,7 +586,7 @@ let getConcorrente = async (nickName) => {
                     }).catch(error => console.error("Houve um erro no reduce de visitas!"))
                 } catch (error) {
                     console.log("Caiu no Catch de visitas")
-                }
+                }*/
 
                 let faturamento = soma.toLocaleString("pt-BR", { minimumFractionDigits: 2, style: 'currency', currency: 'BRL' })
 
@@ -594,7 +599,8 @@ let getConcorrente = async (nickName) => {
                     console.log('Classificação negativa: ' + (resp.data.seller_reputation.transactions.ratings.negative * 100).toFixed(0) + '%')
                     console.log('Classificação neutra: ' + (resp.data.seller_reputation.transactions.ratings.neutral * 100).toFixed(0) + '%')
                     console.log('Classificação positiva: ' + (resp.data.seller_reputation.transactions.ratings.positive * 100).toFixed(0) + '%')
-                    console.log('Perfil: ' + resp.data.permalink)
+                    console.log('Perfil: '  + resp.data.permalink)
+                    console.log('NickName: '+ resp.data.permalink.replace("http://perfil.mercadolivre.com.br/", ""))
 
                     console.log('-------------------------------------------------')
                     console.log('Reputação: ' + reputacao)
@@ -605,7 +611,9 @@ let getConcorrente = async (nickName) => {
                     console.log('Qualidade da entrega: ' + qualidadeEntrega)
                     console.log("Possui atraso na entrega: " + possuiAtraso)
                     console.log('-------------------------------------------------')
-                    console.log('Feedback: ' + feedback)
+                    console.log('Feedback Bom: ' + feedbackBom)
+                    console.log('Feedback Regular: ' + feedbackRegular)
+                    console.log('Feedback Ruim: ' + feedbackRuim)
                     console.log('Total de Feedback: ' + totalFeedback)
                     console.log('-------------------------------------------------')
 
@@ -613,6 +621,9 @@ let getConcorrente = async (nickName) => {
                     console.log('Ticket médio: ' + (soma / totalVendas).toLocaleString("pt-BR", { minimumFractionDigits: 2, style: 'currency', currency: 'BRL' }))
                     console.log('Total de vendas: ' + totalVendas)
                     console.log("Total de faturamento: " + faturamento)
+                    console.log('Mercado Lider: ' + mercadoLider)
+                    console.log('Mensagem Mercado Lider: '+mensagemMercadoLider)
+                    console.log('Localizacao: '+localizacao)
 
                 }).catch(error => console.error("Houve um erro ao tentar buscar por id do usuário"))
 
@@ -917,4 +928,4 @@ const test = () => {
     }
 }
 
-getConcorrente('R.PIRES+R.PIRES')
+getConcorrente('CRISTALINA+FASHION')

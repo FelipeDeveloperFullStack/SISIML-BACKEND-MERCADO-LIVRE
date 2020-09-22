@@ -28,7 +28,7 @@ const atualizadorRefreshToken = require("./src/services/agendadorRefreshToken/at
 const atividadeDiariaRoute = require('./src/routes/atividadeDiaria.route')
 const mensagemPosVenda = require("./src/routes/msgPosVenda.route")
 const forgotPassword = require("./src/routes/forgotpassword.route")
-const concorrenteRoute = require('./src/routes/Concorrente/concorrente.route')
+const concorrenteRoute = require('./src/routes/concorrente/concorrente.route')
 
 //  Adicionar e configurar middleware
 app.use(session({
