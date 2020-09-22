@@ -917,4 +917,4 @@ const test = () => {
     }
 }
 
-getConcorrente('MEJORCALIDADBR')
+getConcorrente('R.PIRES+R.PIRES')
