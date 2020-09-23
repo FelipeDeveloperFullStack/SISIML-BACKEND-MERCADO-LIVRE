@@ -2,22 +2,41 @@ const axios = require('axios')
 const cheerio = require('cheerio')
 const ConcorrenteModel = require('../../models/concorrente/concorrente-model')
 
+exports.removeConcorrente = async (req, res) => {
+    try {
+        ConcorrenteModel.find({ id_usuario: req.body.userId }).then(response => {
+            response.map(concorrente => {
+                if (concorrente.nickName === req.body.nickName) {
+                    ConcorrenteModel.findByIdAndRemove(concorrente._id).then(responseModel => {
+                        res.send(responseModel)
+                    })
+                }
+            })
+        }).catch(error => res.send(error))
+    } catch (error) {
+        res.send(error)
+    }
+}
+
 exports.saveConcorrente = async (req, res) => {
     try {
-        ConcorrenteModel.find({nickName: req.body.nickName}).then(response => {
-             //SE CASO NÃO TIVER NENHUM REGISTRO, SALVA UM NOVO.
-            if(response.length === 0){
+        ConcorrenteModel.find({ id_usuario: req.body.id_usuario }).then(response => {
+            if (response.length === 0) {
                 const concorrenteModel = new ConcorrenteModel(req.body)
                 concorrenteModel.save().then(responseModel => {
                     res.status(200).send(responseModel)
                 }).catch(error => res.send(error))
-            }else{
-                //CASO JÁ TIVER, ATUALIZA. 
-                ConcorrenteModel.findOneAndUpdate({nickName: req.body.nickName}, {
-                    $set: req.body
-                }).then(response => {
-                    res.status(200).send(response)
-                }).catch(error => res.send(error))
+            } else {
+                const found = response.some(value => value.nickName === req.body.nickName)
+                if (found === false) {
+                    const concorrenteModelSave = new ConcorrenteModel(req.body)
+                    concorrenteModelSave.save().then(responseModelSave => {
+                        res.status(200).send(responseModelSave)
+                    }).catch(error => res.send(error))
+                }
+                if(found){
+                    res.status(200).send({found: true})
+                }
             }
         })
     } catch (error) {
@@ -27,7 +46,7 @@ exports.saveConcorrente = async (req, res) => {
 
 exports.listarConcorrentePorIdUsuario = async (req, res) => {
     try {
-        ConcorrenteModel.find({id_usuario: req.params.userId}).then(response => {
+        ConcorrenteModel.find({ id_usuario: req.params.userId }).then(response => {
             res.status(200).send(response)
         }).catch(error => res.send(error))
     } catch (error) {
@@ -53,7 +72,7 @@ exports.getConcorrente = async (req, res) => {
         let feedbackRuim = $('#feedback_good').eq(2).text()
         let mercadoLider = $('#profile > div > div.main-wrapper > div.content-wrapper > div.seller-info > div.message > div > p').text()
         let mensagemMercadoLider = $('#profile > div > div.main-wrapper > div.content-wrapper > div.seller-info > div.message > div > span').text()
-        let localizacao = $('#profile > div > div.main-wrapper > div.content-wrapper > div.location__wrapper > p').text()   
+        let localizacao = $('#profile > div > div.main-wrapper > div.content-wrapper > div.location__wrapper > p').text()
 
         let promiseConcorrente = new Promise(async (resolve, reject) => {
             let temp = []
@@ -95,15 +114,15 @@ exports.getConcorrente = async (req, res) => {
                     let faturamento = soma.toLocaleString("pt-BR", { minimumFractionDigits: 2, style: 'currency', currency: 'BRL' })
 
                     await axios.get(`https://api.mercadolibre.com/users/${response.data.seller.id}`).then(resp => {
-                       /*console.log('Transações:')
-                        console.log('Total de transações canceladas: ' + resp.data.seller_reputation.transactions.canceled)
-                        console.log('Total de transações completadas: ' + resp.data.seller_reputation.transactions.completed)
-                        console.log('-------------------------------------------------')
-                        console.log('Classificações')
-                        console.log('Classificação negativa: ' + (resp.data.seller_reputation.transactions.ratings.negative * 100).toFixed(0) + '%')
-                        console.log('Classificação neutra: ' + (resp.data.seller_reputation.transactions.ratings.neutral * 100).toFixed(0) + '%')
-                        console.log('Classificação positiva: ' + (resp.data.seller_reputation.transactions.ratings.positive * 100).toFixed(0) + '%')
-                        console.log('Perfil: ' + resp.data.permalink)*/
+                        /*console.log('Transações:')
+                         console.log('Total de transações canceladas: ' + resp.data.seller_reputation.transactions.canceled)
+                         console.log('Total de transações completadas: ' + resp.data.seller_reputation.transactions.completed)
+                         console.log('-------------------------------------------------')
+                         console.log('Classificações')
+                         console.log('Classificação negativa: ' + (resp.data.seller_reputation.transactions.ratings.negative * 100).toFixed(0) + '%')
+                         console.log('Classificação neutra: ' + (resp.data.seller_reputation.transactions.ratings.neutral * 100).toFixed(0) + '%')
+                         console.log('Classificação positiva: ' + (resp.data.seller_reputation.transactions.ratings.positive * 100).toFixed(0) + '%')
+                         console.log('Perfil: ' + resp.data.permalink)*/
 
                         let concorrenteObj = {
                             totalTransacoesCanceladas: resp.data.seller_reputation.transactions.canceled,
