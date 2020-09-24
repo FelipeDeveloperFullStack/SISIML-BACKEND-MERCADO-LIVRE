@@ -4,10 +4,27 @@ const axios = require('axios');
 const constants = require('../constants/constants');
 const usuarioService = require('../services/usuario-service')
 const cheerio = require('cheerio');
+const AnuncioModel = require('../models/anuncio-model')
 
 /**
  * Created by Felipe M. Santos
  */
+
+exports.salvarDadosAnuncioBD = async (req, res) => {
+    try {
+        AnuncioModel.findOneAndUpdate({ id: req.body.id }, { $set: req.body }, {upsert: true}).then(response => {
+            res.status(200).send(response)
+        }).catch(error => res.send(error))
+    } catch (error) {
+        res.send(error)
+    }
+}
+
+exports.buscarPeloId = async (req, res) => {
+    AnuncioModel.find({ id_usuario: req.body.id_usuario }).then(response => {
+        res.status(200).send(response)
+    }).catch(error => res.send(error))
+}
 
 exports.obterVisualizacao = (req, res) => {
     axios.get(`${constants.API_MERCADO_LIVRE}/visits/items?ids=${req.params.itemId}`).then(response => {
@@ -51,6 +68,7 @@ exports.listarTodosAnuncio = async (req, res) => {
                                     return axios.get(`${constants.API_MERCADO_LIVRE}/items/${resp02}/shipping_options/free`).then(resp05 => {
                                         var anuncio = {
                                             id: resp03.data.id,
+                                            id_usuario: req.params.userId,
                                             titulo: resp03.data.title,
                                             preco: resp03.data.price,
                                             estoque_total: resp03.data.available_quantity,
@@ -84,6 +102,7 @@ exports.listarTodosAnuncio = async (req, res) => {
                                 } else if (resp03.data.shipping.mode === "not_specified") {
                                     var anuncio = {
                                         id: resp03.data.id,
+                                        id_usuario: req.params.userId,
                                         titulo: resp03.data.title,
                                         preco: resp03.data.price,
                                         estoque_total: resp03.data.available_quantity,
@@ -110,6 +129,7 @@ exports.listarTodosAnuncio = async (req, res) => {
                                 } else {
                                     var anuncio = {
                                         id: resp03.data.id,
+                                        id_usuario: req.params.userId,
                                         titulo: resp03.data.title,
                                         preco: resp03.data.price,
                                         estoque_total: resp03.data.available_quantity,

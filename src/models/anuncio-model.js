@@ -4,7 +4,10 @@ const mongoose = require('mongoose');
 
 const anuncioModel = mongoose.Schema({
     id: {
-        type: Number
+        type: String
+    },
+    id_usuario: {
+        type: String
     },
     titulo: {
         type: String
@@ -25,7 +28,7 @@ const anuncioModel = mongoose.Schema({
         type: String
     },
     visualizacao: {
-        type: String
+        type: Number
     },
     totalVariacoes: {
         type: Number
@@ -61,7 +64,7 @@ const anuncioModel = mongoose.Schema({
         type: String
     },
     sub_status: {
-        type: String
+        type: Array
     },
     json: {
         type: Object
@@ -70,8 +73,8 @@ const anuncioModel = mongoose.Schema({
         type: Boolean
     },
     question: {
-        type: String
+        type: Array
     }
 });
 
-module.exports = mongoose.model('Anuncio', anuncioModel);
+module.exports = mongoose.model('anuncios', anuncioModel)

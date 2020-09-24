@@ -28,6 +28,8 @@ router.put('/update_atributos/put01/put02/put03/put04/put05/put06/put07/put08/pu
 router.put('/update_video_youtube/put01/put02/put03/put04/put05/put06/put07/put08/put09/put10/put11/put12/:userId', anuncioService.updateVideoYouTube)
 router.post('/obter_imagem_site/put01/put02/put03/put04/put05/put06/put07/put08/put09/put10/put11/put12/post13/:userId', anuncioService.obterImagemSite)
 router.put('/update_imagem_variation/put01/put02/put03/put04/put05/put06/put07/put08/put09/put10/put11/put12/post13/put14/:userId', anuncioService.updateImagemVariation)
+router.post('/salvar-anuncio-bd', anuncioService.salvarDadosAnuncioBD)
+router.post('/buscar-anuncio-por-id/bd', anuncioService.buscarPeloId)
 
 
 

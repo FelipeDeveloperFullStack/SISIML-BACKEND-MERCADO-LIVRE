@@ -5,7 +5,7 @@ const ClientModel = require('../models/cliente-model')
 
 exports.salvarDadosClientesBD = async (req, res) => {
     try {
-        ClientModel.find({ id_usuario: req.body.id_usuario }).then(response => {
+        /*ClientModel.find({ id_usuario: req.body.id_usuario }).then(response => {
             //SE CASO NÃO TIVER NENHUM REGISTRO, SALVA UM NOVO.
             if (response.length === 0) {
                 let clientModel = ClientModel(req.body)
@@ -20,7 +20,10 @@ exports.salvarDadosClientesBD = async (req, res) => {
                     res.status(200).send(response)
                 }).catch(error => res.send(error))
             }   
-        })
+        })*/
+        ClientModel.findOneAndUpdate({ id: req.body.id }, { $set: req.body },{upsert: true}).then(response => {
+            res.status(200).send(response)
+        }).catch(error => res.send(error))
     } catch (error) {
         res.send(error)
     }
@@ -52,8 +55,23 @@ exports.obterDadosCliente = async (req, res) => {
                 })
 
                 let valor_venda = comprasCliente.map(valorCorrente => { return valorCorrente.unit_price })
-
-                return await axios.get('https://api.mercadolibre.com/users/' + value.buyer.id).then(resp => {
+                if(value.buyer.first_name){
+                    var dadosClient = {
+                        id: value.buyer.id,
+                        id_usuario: req.params.userId,
+                        nickname: value.buyer.nickname,
+                        primeiro_nome: value.buyer.first_name,
+                        last_name: value.buyer.last_name,
+                        totalCompras: valor_venda.reduce((acumulador, valorCorrent) => { return acumulador + valorCorrent }).toFixed(2),
+                        quantidadeCompras: valor_venda.length,
+                        data_hora: value.date_closed,
+                        compras_cliente: comprasCliente
+                    }
+                    return dadosClient
+                }
+                
+                //console.log(value.buyer.id)
+                /*return await axios.get('https://api.mercadolibre.com/users/' + value.buyer.id).then(resp => {
                     var dadosClient = {
                         id: value.buyer.id,
                         id_usuario: req.params.userId,
@@ -71,7 +89,7 @@ exports.obterDadosCliente = async (req, res) => {
                         compras_cliente: comprasCliente
                     }
                     return dadosClient
-                }).catch(err => res.send(err))
+                }).catch(err => res.send(err))*/
             })
 
             Promise.all(clientes).then((resultado) => {
