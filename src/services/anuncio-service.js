@@ -20,7 +20,7 @@ exports.salvarDadosAnuncioBD = async (req, res) => {
     }
 }
 
-exports.buscarPeloId = async (req, res) => {
+exports.buscarPeloIdBD = async (req, res) => {
     AnuncioModel.find({ id_usuario: req.body.id_usuario }).then(response => {
         res.status(200).send(response)
     }).catch(error => res.send(error))
