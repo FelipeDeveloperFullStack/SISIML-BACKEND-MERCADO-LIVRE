@@ -26,6 +26,12 @@ exports.buscarPeloIdBD = async (req, res) => {
     }).catch(error => res.send(error))
 }
 
+exports.buscarAnuncioPorStatus = async (req, res) => {
+    AnuncioModel.find({ id_usuario: req.body.id_usuario, status: req.body.status }).then(response => {
+        res.status(200).send(response)
+    }).catch(error => res.send(error))
+}
+
 exports.obterVisualizacao = (req, res) => {
     axios.get(`${constants.API_MERCADO_LIVRE}/visits/items?ids=${req.params.itemId}`).then(response => {
         res.status(200).send({ visualizacao: Object.values(response.data).reduce((accumulador, valorCorrente) => { return valorCorrente }) })
