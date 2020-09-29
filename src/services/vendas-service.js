@@ -572,10 +572,12 @@ exports.obterVendasConcluidas = async (req, res) => {
     usuarioService.buscarUsuarioPorID(req.params.userId).then(async user => {
         await axios.get(`https://api.mercadolibre.com/orders/search?seller=${user.id}&sort=date_asc&access_token=${user.accessToken}`).then(resp => {
             let vendasConcluidas = resp.data.results.map(async response => {
-                if (response.shipping.id === undefined) {
+                if (response.shipping.id === null) {
                     return processarVendasConcluidasSemShipmentsEntregaACombinar(response, user)
                 } else {
-                    return processarVendasConcluidasComShipments(response, user)
+                    if(response.shipping.id !== null){
+                        return processarVendasConcluidasComShipments(response, user)
+                    }
                 }
             })
 
