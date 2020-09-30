@@ -225,10 +225,12 @@ exports.obterVendasPendentes = async (req, res) => {
     usuarioService.buscarUsuarioPorID(req.params.userId).then(async user => {
         await axios.get(`${constants.API_MERCADO_LIVRE}/orders/search/pending?seller=${user.id}&access_token=${user.accessToken}`).then(async resp => {
             let vendasPendentes = await resp.data.results.map(async response => {
-                if (response.shipping.id !== undefined) {
+                if (response.shipping.id === null) {
                     return obterVendasPendentesCOMShipping(response, user)
                 } else {
-                    return obterVendasPendentesSEMShipping(response)
+                    if(response.shipping.id !== null){
+                        return obterVendasPendentesSEMShipping(response)
+                    }
                 }
             })
 
@@ -329,10 +331,12 @@ exports.obterVendasEmTransito = async (req, res) => {
     usuarioService.buscarUsuarioPorID(req.params.userId).then(async user => {
         await axios.get(`https://api.mercadolibre.com/orders/search/recent?seller=${user.id}&access_token=${user.accessToken}`).then(async resp => {
             let vendasEmTransito = await resp.data.results.map(async response => {
-                if (response.shipping.id !== undefined) {
+                if (response.shipping.id === null) {
                     return obterVendasEmTransitoCOMShipping(response, user)
                 } else {
-                    return obterVendasEmTransitoSEMShipping(response, user)
+                    if(response.shipping.id !== null){
+                        return obterVendasEmTransitoSEMShipping(response, user)
+                    }
                 }
             })
 
@@ -459,7 +463,7 @@ exports.obterTotalVendas = async (req, res) => {
     usuarioService.buscarUsuarioPorID(req.params.userId).then(async user => {
         await axios.get(`https://api.mercadolibre.com/orders/search?seller=${user.id}&access_token=${user.accessToken}`).then(response => {
             let resultVendas = response.data.results.map(async result => {
-                if (result.shipping.id !== undefined) {
+                if (result.shipping.id !== null) {
                     return await axios.get(`https://api.mercadolibre.com/shipments/${result.shipping.id}?access_token=${user.accessToken}`).then(ship => {
                         if (ship.data.status === 'delivered') {
                             return 'delivered'
@@ -494,7 +498,7 @@ exports.obterTotalVendasEmTransito = async (req, res) => {
     usuarioService.buscarUsuarioPorID(req.params.userId).then(async user => {
         await axios.get(`https://api.mercadolibre.com/orders/search/recent?seller=${user.id}&access_token=${user.accessToken}`).then(response => {
             let resultVendas = response.data.results.map(async result => {
-                if (result.shipping.id !== undefined) {
+                if (result.shipping.id !== null) {
                     return await axios.get(`https://api.mercadolibre.com/shipments/${result.shipping.id}?access_token=${user.accessToken}`).then(ship => {
                         if (ship.data.status === 'shipped') {
                             return 'shipped'
