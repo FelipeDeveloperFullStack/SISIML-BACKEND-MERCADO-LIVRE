@@ -225,10 +225,10 @@ exports.obterVendasPendentes = async (req, res) => {
     usuarioService.buscarUsuarioPorID(req.params.userId).then(async user => {
         await axios.get(`${constants.API_MERCADO_LIVRE}/orders/search/pending?seller=${user.id}&access_token=${user.accessToken}`).then(async resp => {
             let vendasPendentes = await resp.data.results.map(async response => {
-                if (response.shipping.id === null) {
+                if (response.shipping.id !== null) {
                     return obterVendasPendentesCOMShipping(response, user)
                 } else {
-                    if(response.shipping.id !== null){
+                    if(response.shipping.id === null){
                         return obterVendasPendentesSEMShipping(response)
                     }
                 }
@@ -750,6 +750,8 @@ let obterDadosPagamento = (payments) => {
             status_pagamento: response.status,
             custo_envio: response.shipping_cost,
             total_pago: response.total_paid_amount,
+            parcelas: response.installments,
+            valor_parcelas: response.installment_amount,
             taxa_ml: response.marketplace_fee,
             status_pagamento: response.status,
             boleto_url: response.activation_uri,

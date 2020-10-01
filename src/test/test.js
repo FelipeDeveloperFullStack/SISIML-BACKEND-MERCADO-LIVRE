@@ -177,43 +177,110 @@ const obterTotalDeVendas = async () => {
     })
 }
 
-const obterVendasPendentes = async () => {
-    usuarioService.buscarUsuarioPorID().then(async resp => {
-        await axios.get(`${constants.API_MERCADO_LIVRE}/orders/search/pending?seller=${resp.id}&access_token=${resp.accessToken}`).then(async response => {
-            let vendasPendentes = await response.data.results.filter(value => value.payments[0].status === 'pending').map(async value => {
-                return await anuncioService.obterFotoPrincipalAnuncio(value.order_items[0].item.id).then(resp => {
-                    let vendas = {
-                        idVariacao: value.order_items[0].item.variation_id,
-                        idAnuncio: value.order_items[0].item.id,
-                        titulo: value.order_items[0].item.title,
-                        quantidade: value.order_items[0].quantity,
-                        preco: value.order_items[0].full_unit_price,
-                        sku: value.order_items[0].item.seller_sku,
-                        idCategoria: value.order_items[0].item.category_id,
-                        variacao: value.order_items[0].item.variation_attributes
-                            .filter(value => value.name === 'Tamanho')
-                            .reduce((value) => value).value_name,
-                        dataPedido: util.formatarDataHora(value.date_created),
-                        statusPagamento: value.payments[0].status === 'pending' ? 'Pendente' : value.payments[0].status ||
-                            value.payments[0].status === 'rejected' ? 'Rejeitado' : value.payments[0].status,
-                        boleto: value.payments[0].activation_uri,
-                        metodoPagamento: value.payments[0].payment_method_id === 'bolbradesco' ? 'Boleto Banco Bradesco' : value.payments[0].payment_method_id,
-                        tipoPagamento: value.payments[0].payment_type === 'credit_card' ? 'Cartão de crédito' : value.payments[0].payment_type ||
-                            value.payments[0].payment_type === 'ticket' ? 'Boleto' : value.payments[0].payment_type,
-                        cliente: value.buyer.nickname,
-                        fotoPrincipal: resp,
-                        quantidadeVendasPendente: response.data.results.filter(value => value.payments[0].status === 'pending').length
+const obterVendasPendentes = async (userId) => {
+    usuarioService.buscarUsuarioPorID(userId).then(async user => {
+        await axios.get(`https://api.mercadolibre.com/orders/search/pending?seller=${user.id}&access_token=${user.accessToken}`).then(async resp => {
+            let vendasPendentes = await resp.data.results.map(async response => {
+                if (response.shipping.id !== null) {
+                    return obterVendasPendentesCOMShipping(response, user)
+                } else {
+                    if(response.shipping.id === null){
+                        return obterVendasPendentesSEMShipping(response)
                     }
-                    return vendas
-                })
+                }
             })
 
-            Promise.all(vendasPendentes).then(resp => { console.log(resp) })
+            Promise.all(vendasPendentes).then(vendas => {
+                let newVendas = []
+                vendas.map(venda => {
+                    if (venda != null) {
+                        newVendas.push(venda)
+                    }
+                })
+                console.log(newVendas)
+            })
 
-        }).catch(err => {
-            console.log(err)
-        })
+        }).catch(error => { console.log(error) })
     })
+}
+
+const obterVendasPendentesSEMShipping = async (response) => {
+    let json = {
+        id_venda: response.id,
+        status: response.status,
+        data_venda: util.formatarDataHora(response.date_created),
+        itens_pedido: {
+            quantidade_vendido: response.order_items[0].quantity,
+            id_variacao: response.order_items[0].item.variation_id,
+            sku: response.order_items[0].item.seller_sku,
+            id_anuncio: response.order_items[0].item.id,
+            condicao: response.order_items[0].item.condition,
+            garantia: response.order_items[0].item.warranty,
+            id_categoria: response.order_items[0].item.category_id,
+            titulo_anuncio: response.order_items[0].item.title,
+            taxa_venda: response.order_items[0].sale_fee,
+            variation_attributes: response.order_items[0].item.variation_attributes,
+        },
+        valor_venda: response.total_amount,
+        comprador: {
+            nickname_comprador: response.buyer.nickname,
+        },
+        dados_pagamento: obterDadosPagamento(response.payments),
+        dados_entrega: {
+            substatus: "to_be_agreed",
+            status: "to_be_agreed",
+            status_message: "Entrega a combinar com o vendedor"
+        }
+    }
+    return json
+}
+
+const obterVendasPendentesCOMShipping = async (response, user) => {
+    if (response.shipping.id != null) {
+        return await axios.get(`https://api.mercadolibre.com/shipments/${response.shipping.id}?access_token=${user.accessToken}`).then(ship => {
+            let json = {
+                id_venda: response.id,
+                status: response.status,
+                data_venda: util.formatarDataHora(response.date_created),
+                itens_pedido: {
+                    quantidade_vendido: response.order_items[0].quantity,
+                    id_variacao: response.order_items[0].item.variation_id,
+                    sku: response.order_items[0].item.seller_sku,
+                    id_anuncio: response.order_items[0].item.id,
+                    condicao: response.order_items[0].item.condition,
+                    garantia: response.order_items[0].item.warranty,
+                    id_categoria: response.order_items[0].item.category_id,
+                    titulo_anuncio: response.order_items[0].item.title,
+                    taxa_venda: response.order_items[0].sale_fee,
+                    variation_attributes: response.order_items[0].item.variation_attributes,
+                },
+                valor_venda: response.total_amount,
+                comprador: {
+                    nickname_comprador: response.buyer.nickname,
+                },
+                dados_pagamento: obterDadosPagamento(response.payments),
+                dados_entrega: {
+                    status: ship.data.status,
+                    id: ship.data.id,
+                    cod_rastreamento: ship.data.tracking_number,
+                    metodo_envio: ship.data.tracking_method,
+                    endereco_entrega: {
+                        rua: ship.data.receiver_address.street_name,
+                        numero: ship.data.receiver_address.street_number,
+                        cep: ship.data.receiver_address.zip_code,
+                        cidade: ship.data.receiver_address.city,
+                        estado: ship.data.receiver_address.state,
+                        bairro: ship.data.receiver_address.neighborhood,
+                        latitude: ship.data.receiver_address.latitude,
+                        longitude: ship.data.receiver_address.longitude,
+                        nomePessoaEntrega: ship.data.receiver_address.receiver_name,
+                        telefonePessoaEntrega: ship.data.receiver_address.receiver_phone
+                    }
+                }
+            }
+            return json
+        })
+    }
 }
 
 
@@ -930,4 +997,4 @@ const test = () => {
     }
 }
 
-obterVendasConcluidas(541569110)
+obterVendasPendentes(541569110)
