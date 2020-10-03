@@ -1,6 +1,6 @@
 const axios = require('axios')
 const cheerio = require('cheerio')
-const ConcorrenteModel = require('../../models/concorrente-model')
+const ConcorrenteModel = require('../models/concorrente-model')
 
 exports.removeConcorrente = async (req, res) => {
     try {
