@@ -47,7 +47,6 @@ module.exports = (io) => {
                                 }
                             })
                             console.log(req.body)
-                            //console.log(vendas)
                             res.status(200).send(newVendas)
                             io.emit("nova_venda", newVendas)
                         })
