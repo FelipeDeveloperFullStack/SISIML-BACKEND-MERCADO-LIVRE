@@ -17,6 +17,10 @@ const filaPerguntas = mongoose.Schema({
         type: String,
         default: 'Pergunta referente ao anúncio'
     },
+    tipo_chat: {
+        type: String,
+        default: 'pergunta'
+    },
     text: {
         type: String,
         trim: true
