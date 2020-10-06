@@ -15,11 +15,11 @@ const filaPerguntas = mongoose.Schema({
     },
     tipo_notificacao: {
         type: String,
-        default: 'Pergunta referente ao anúncio'
+        trim: true
     },
     tipo_chat: {
         type: String,
-        default: 'pergunta'
+        trim: true
     },
     text: {
         type: String,

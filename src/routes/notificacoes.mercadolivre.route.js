@@ -16,15 +16,21 @@ module.exports = (io) => {
                 await axios.get(`https://api.mercadolibre.com/questions/${resource}?access_token=${user.accessToken}`).then(async question => {
                     await axios.get(`https://api.mercadolibre.com/items/${question.data.item_id}`).then(async item => {
                         await axios.get(`https://api.mercadolibre.com/users/${question.data.from.id}`).then(userName => {
-                            question.data.title = item.data.title
-                            question.data.nick_name = userName.data.nickname
+                            //question.data.title = item.data.title
+                            //question.data.nick_name = userName.data.nickname
+                            Object.assign(question.data, {
+                                tipo_chat: 'pergunta',
+                                title: item.data.title,
+                                nick_name: userName.data.nickname,
+                                tipo_notificacao: 'Pergunta referente ao anúncio'
+                            })
                             salvarNotificacaoFilaBD(question.data)
                             io.emit('notification-ml', question.data)
                             res.status(200).send(question.data)
                             console.log(req.body)
-                        })
-                    })
-                })
+                        }).catch(error => res.send(error))
+                    }).catch(error => res.send(error))
+                }).catch(error => res.send(error))
             }
             /** VENDAS */
             if (req.body.topic === 'orders_v2') {
@@ -57,17 +63,13 @@ module.exports = (io) => {
             // MENSAGEM DE POS VENDA
             if (req.body.topic === 'messages') {
                 await axios.get(`https://api.mercadolibre.com/messages/${req.body.resource}?access_token=${user.accessToken}`).then(async message => {
-                    await axios.get(`https://api.mercadolibre.com/orders/${message.data.resource_id}?access_token=${user.accessToken}`).then(response => {
-                        console.log(req.body)
-                        Object.assign(message.data, {
-                            title: response.data.order_items[0].item.title,
-                            nick_name: response.data.buyer.nickname,
-                            buyer_id: response.data.buyer.id
-                        })
-                        io.emit("mensagem_pos_venda", message.data)
-                        res.status(200).send(message.data)
-                    })    
-                })
+                    console.log(message.data)
+                    //salvarNotificacaoFilaBD(message.data)
+                    io.emit("mensagem_pos_venda", message.data)
+                    res.status(200).send(message.data)
+                    /*await axios.get(`https://api.mercadolibre.com/orders/${message.data.resource_id}?access_token=${user.accessToken}`).then(response => {
+                    }).catch(error => res.send(error))*/
+                }).catch(error => res.send(error))
             }
         }).catch(error => res.send(error))
     })

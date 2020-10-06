@@ -26,5 +26,13 @@ exports.buscarEAtualizar = async (req, res) => {
     }).catch(error => res.send(error))
 }
 
+exports.obterDadosMercadoLivre = async (req, res) => {
+    await usuarioService.buscarUsuarioPorID(req.body.userId).then(async user => {
+        await axios.get(`https://api.mercadolibre.com/orders/${req.body.resourceId}?access_token=${user.accessToken}`).then(response => {
+            res.send(response.data)
+        }).catch(error => res.send(error))
+    }).catch(error => res.send(error))
+}
+
 //ANSWERED
 //UNANSWERED
