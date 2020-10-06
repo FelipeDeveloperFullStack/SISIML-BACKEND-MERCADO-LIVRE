@@ -61,7 +61,8 @@ module.exports = (io) => {
                         console.log(req.body)
                         Object.assign(message.data, {
                             title: response.data.order_items[0].item.title,
-                            nick_name: response.data.buyer.nickname
+                            nick_name: response.data.buyer.nickname,
+                            buyer_id: response.data.buyer.id
                         })
                         io.emit("mensagem_pos_venda", message.data)
                         res.status(200).send(message.data)
