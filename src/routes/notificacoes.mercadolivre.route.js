@@ -63,7 +63,8 @@ module.exports = (io) => {
             // MENSAGEM DE POS VENDA
             if (req.body.topic === 'messages') {
                 await axios.get(`https://api.mercadolibre.com/messages/${req.body.resource}?access_token=${user.accessToken}`).then(async message => {
-                    console.log(message.data)
+                    //console.log(message.data)
+                    console.log(req.body)
                     //salvarNotificacaoFilaBD(message.data)
                     io.emit("mensagem_pos_venda", message.data)
                     res.status(200).send(message.data)
