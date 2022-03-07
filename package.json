@@ -23,7 +23,7 @@
     "http": "0.0.0",
     "https-proxy-agent": "^4.0.0",
     "localStorage": "^1.0.4",
-    "lodash": "^4.17.15",
+    "lodash": "^4.17.21",
     "mercadolibre": "^0.0.13",
     "moment": "^2.26.0",
     "mongoose": "5.7.0",
