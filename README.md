@@ -1,5 +1,5 @@
 <h2 align="center">
-  🚀 [Backend] - Sistema para gerencialmento de vendas, estoque, anúncios, mensagens automáticas, bloqueio de contas, chat e dados dos concorrentes para vendedores do Mercado Livre
+  🚀 [Backend] - Sistema para gerenciamento de vendas, estoque, anúncios, mensagens automáticas, bloqueio de contas, chat e dados dos concorrentes para vendedores do Mercado Livre
 </h2>
 
 <p align="center">
