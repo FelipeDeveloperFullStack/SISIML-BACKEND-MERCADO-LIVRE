@@ -13,7 +13,7 @@ const AnuncioModel = require('../models/anuncio-model')
 exports.salvarDadosAnuncioBD = async (req, res) => {
     try {
         AnuncioModel.findOneAndUpdate({ id: req.body.id }, { $set: req.body }, {upsert: true}).then(response => {
-            res.status(200).send(response)
+            res.status(201).send(response)
         }).catch(error => res.send(error))
     } catch (error) {
         res.send(error)
