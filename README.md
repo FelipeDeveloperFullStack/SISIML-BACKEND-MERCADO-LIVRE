@@ -22,7 +22,6 @@ Esse projeto foi desenvolvido com as seguintes tecnologias:
 - [Axios](https://reactjs.org)
 - [Mongoose](https://mongoosejs.com/)
 - [Websocket IO](https://socket.io/)
-- [LocalStorage](https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage)
 - [API Mercado Livre](https://developers.mercadolivre.com.br/)
 - [Passport](https://www.passportjs.org/)
 - [Rastro.js](https://github.com/talesluna/rastrojs)
